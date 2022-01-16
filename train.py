@@ -2,7 +2,7 @@ import argparse
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 import os
-from build_BiSeNet import BiSeNet
+from model.build_BiSeNet import BiSeNet
 import torch
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
@@ -12,7 +12,7 @@ from utils import reverse_one_hot, compute_global_accuracy, fast_hist, \
     per_class_iu
 from loss import DiceLoss
 import torch.cuda.amp as amp
-from cityscapes import CityscapesDataset
+from dataset.cityscapes import CityscapesDataset
 
 
 def val(args, model, dataloader):
@@ -150,33 +150,28 @@ def main(params):
     parser.add_argument('--loss', type=str, default='dice', help='loss function, dice or crossentropy')
 
     args = parser.parse_args(params)
-
-    # create dataset and dataloader
-    #train_path = [os.path.join(args.data, 'train'), os.path.join(args.data, 'val')]
-    #train_label_path = [os.path.join(args.data, 'train_labels'), os.path.join(args.data, 'val_labels')]
-    #test_path = os.path.join(args.data, 'test')
-    #test_label_path = os.path.join(args.data, 'test_labels')
-    #csv_path = os.path.join(args.data, 'class_dict.csv')
-    
+    print(args.data)
+        
 
     # Define here your dataloaders
-    # dataloader_train
-    # dataloader_val
-    train_path = [os.path.join(args.data, '/content/drive/MyDrive/train')]
-    train_label_path = [os.path.join(args.data, '/content/drive/MyDrive/labels')]
-    testloader = data.DataLoader(CityscapesDataset(train_path, train_label_path, scale=False, mirror=False)
+    dataset_train = CityscapesDataset(args.data, train=True, scale=(args.crop_height, args.crop_width))
+    dataset_val = CityscapesDataset(args.data, train=False, scale=False, mirror=False)
 
-    # create dataset and dataloader
-    #train_path = [os.path.join(args.data, 'train')]
-    #train_label_path = [os.path.join(args.data, 'labels')]
-    
-    dataset_train = CityscapesDataset(train_path, train_label_path, scale=(args.crop_height, args.crop_width))
+  
     dataloader_train = DataLoader(
         dataset_train,
         batch_size=args.batch_size,
         shuffle=True,
         num_workers=args.num_workers,
         drop_last=True
+    )
+
+    dataloader_val = DataLoader(
+        dataset_val,
+        batch_size=1,
+        shuffle=False,
+        num_workers=args.num_workers,
+        drop_last=False
     )
 
     # build model
@@ -210,13 +205,13 @@ def main(params):
 
 if __name__ == '__main__':
     params = [
-        '--num_epochs', '1000',
+        '--num_epochs', '50',
         '--learning_rate', '2.5e-2',
-        '--data', './data/...',
+        '--data', './data/Cityscapes',
         '--num_workers', '8',
-        '--num_classes', '12',
+        '--num_classes', '19',
         '--cuda', '0',
-        '--batch_size', '8',
+        '--batch_size', '2',
         '--save_model_path', './checkpoints_18_sgd',
         '--context_path', 'resnet18',  # set resnet18 or resnet101, only support resnet18 and resnet101
         '--optimizer', 'sgd',
