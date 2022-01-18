@@ -70,7 +70,7 @@ def train(args, model, optimizer, dataloader_train, dataloader_val):
     if args.loss == 'dice':
         loss_func = DiceLoss()
     elif args.loss == 'crossentropy':
-        #loss_func = torch.nn.CrossEntropyLoss()
+        loss_func = torch.nn.CrossEntropyLoss()
         loss_func = torch.nn.CrossEntropyLoss(ignore_index=255)
     max_miou = 0
     step = 0
@@ -133,8 +133,8 @@ def main(params):
     parser.add_argument('--checkpoint_step', type=int, default=10, help='How often to save checkpoints (epochs)')
     parser.add_argument('--validation_step', type=int, default=10, help='How often to perform validation (epochs)')
     parser.add_argument('--dataset', type=str, default="Cityscapes", help='Dataset you are using.')
-    parser.add_argument('--crop_height', type=int, default=720, help='Height of cropped/resized input image to network')
-    parser.add_argument('--crop_width', type=int, default=960, help='Width of cropped/resized input image to network')
+    parser.add_argument('--crop_height', type=int, default=1024, help='Height of cropped/resized input image to network')
+    parser.add_argument('--crop_width', type=int, default=512, help='Width of cropped/resized input image to network')
     parser.add_argument('--batch_size', type=int, default=32, help='Number of images in each batch')
     parser.add_argument('--context_path', type=str, default="resnet101",
                         help='The context path model you are using, resnet18, resnet101.')
@@ -147,7 +147,7 @@ def main(params):
     parser.add_argument('--pretrained_model_path', type=str, default=None, help='path to pretrained model')
     parser.add_argument('--save_model_path', type=str, default=None, help='path to save model')
     parser.add_argument('--optimizer', type=str, default='rmsprop', help='optimizer, support rmsprop, sgd, adam')
-    parser.add_argument('--loss', type=str, default='dice', help='loss function, dice or crossentropy')
+    parser.add_argument('--loss', type=str, default='crossentropy', help='loss function, dice or crossentropy')
 
     args = parser.parse_args(params)
     print(args.data)
@@ -205,13 +205,13 @@ def main(params):
 
 if __name__ == '__main__':
     params = [
-        '--num_epochs', '50',
+        '--num_epochs', '70',
         '--learning_rate', '2.5e-2',
         '--data', './data/Cityscapes',
         '--num_workers', '8',
         '--num_classes', '19',
         '--cuda', '0',
-        '--batch_size', '2',
+        '--batch_size', '4',
         '--save_model_path', './checkpoints_18_sgd',
         '--context_path', 'resnet18',  # set resnet18 or resnet101, only support resnet18 and resnet101
         '--optimizer', 'sgd',

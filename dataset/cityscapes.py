@@ -12,7 +12,7 @@ import json
 
 
 class CityscapesDataset(data.Dataset):
-    def __init__(self, root, max_iters=None, train=True, crop_size=(321, 321), mean=(128, 128, 128), scale=True, mirror=True, ignore_label=255):
+    def __init__(self, root, max_iters=None, train=True, crop_size=(1024, 512), mean=(128, 128, 128), scale=True, mirror=True, ignore_label=255):
         self.root = root
         self.crop_size = crop_size
         self.scale = scale
@@ -83,4 +83,4 @@ class CityscapesDataset(data.Dataset):
         image = image.transpose((2, 0, 1))
         label = label_copy
 
-        return image.copy(), label, np.array(size), name
+        return image.copy(), label
